@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <!-- For Android -->
+  <meta name="theme-color" content="#2563eb">
+
+  <!-- For iOS Safari -->
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="Livora">
+  <link rel="apple-touch-icon" href="lightbulb.ico">
+
+  <title>Livora</title>
+
+  <!-- PWA Manifest & Theme -->
+  <link rel="manifest" href="manifest.json">
+  <meta name="theme-color" content="#2563eb">
+
+  <!-- Favicon -->
+  <link rel="icon" href="image1.png" type="image/png" />
+  <!-- <link rel="icon" href="lightbulb.ico" type="image/x-icon"> -->
+
+  <!-- Styles -->
+  <style>
+    body {
+      font-family: 'Segoe UI', Tahoma, sans-serif;
+      padding: 20px;
+      background: linear-gradient(135deg, #1f2937, #111827);
+      color: white;
+      text-align: center;
+    }
+    h2 {
+      color: #60a5fa;
+      margin-bottom: 20px;
+    }
+    .url-button {
+      display: inline-block;
+      margin: 8px;
+      padding: 12px 20px;
+      background: linear-gradient(90deg, #3b82f6, #2563eb);
+      color: white;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 16px;
+      font-weight: 500;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+      transition: transform 0.2s ease, box-shadow 0.2s ease;
+    }
+    .url-button:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 16px rgba(0, 0, 0, 0.3);
+    }
+    .url-button:active {
+      transform: scale(0.97);
+    }
+    #url-list {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+    }
+  /* PWA Install Button */
+  #installBtn {
+    position: fixed;
+    bottom: 15px;
+    right: 15px;
+    padding: 12px 20px;
+    background: #ff6f61;
+    color: white;
+    border: none;
+    border-radius: 12px;
+    cursor: pointer;
+    font-size: 16px;
+    z-index: 10000;
+    display: none;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+    transition: transform 0.2s;
+  }
+  #installBtn:hover { transform: scale(1.05); }
+
+  </style>
+</head>
+<body>
+  <h2>Livora Tunnel 8 Links 8</h2>
+  <div id="url-list">Loading...</div>
+  <button id="installBtn">⬇️ Install App</button>
+
+  <!-- Firebase + PWA -->
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/12.1.0/firebase-app.js";
+    import { getDatabase, ref, onValue } from "https://www.gstatic.com/firebasejs/12.1.0/firebase-database.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyDakNFuEjYdZPWrYTJE_pQEk6uYJyd2kH8",
+      authDomain: "fir-url-28872.firebaseapp.com",
+      databaseURL: "https://fir-url-28872-default-rtdb.firebaseio.com",
+      projectId: "fir-url-28872",
+      storageBucket: "fir-url-28872.firebasestorage.app",
+      messagingSenderId: "261304356766",
+      appId: "1:261304356766:web:c37a12e3bba39d67d9108f"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const db = getDatabase(app);
+    const tunnelsRef = ref(db, 'tunnels');
+
+    onValue(tunnelsRef, (snapshot) => {
+      const data = snapshot.val();
+      const listDiv = document.getElementById("url-list");
+      listDiv.innerHTML = "";
+
+      if (data) {
+        for (const device in data) {
+          const entry = data[device];
+          const button = document.createElement("button");
+          button.className = "url-button";
+          button.innerText = device;
+          button.onclick = () => window.location.href = entry.url;
+          listDiv.appendChild(button);
+        }
+      } else {
+        listDiv.innerText = "No URLs found.";
+      }
+    });
+
+      // Install prompt (Floating Button with icon + text)
+      let deferredPrompt;
+      const installBtn = document.getElementById("installBtn");
+
+      window.addEventListener("beforeinstallprompt", e=>{
+        e.preventDefault();
+        deferredPrompt = e;
+        installBtn.style.display = "inline-block";
+      });
+
+      installBtn.addEventListener("click", async ()=>{
+        installBtn.style.display = "none";
+        if(deferredPrompt){
+          deferredPrompt.prompt();
+          const { outcome } = await deferredPrompt.userChoice;
+          console.log(`User response to install: ${outcome}`);
+          deferredPrompt = null;
+        }
+      });
+
+
+
+    // Register Service Worker for PWA
+    if ("serviceWorker" in navigator) {
+      navigator.serviceWorker.register("service-worker.js")
+        .then(() => console.log("Service Worker Registered"))
+        .catch(err => console.error("SW registration failed:", err));
+    }
+  </script>
+</body>
+</html>
