@@ -117,7 +117,10 @@
           const button = document.createElement("button");
           button.className = "url-button";
           button.innerText = device;
-          button.onclick = () => window.location.href = entry.url;
+          // button.onclick = () => window.location.href = entry.url;
+          button.onclick = () => {
+            window.location.href = `/redirect.html?device=${device}`;
+          };
           listDiv.appendChild(button);
         }
       } else {
@@ -156,4 +159,5 @@
   </script>
 </body>
 </html>
+
 
