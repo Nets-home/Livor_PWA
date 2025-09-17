@@ -1,11 +1,10 @@
 {
   "name": "Livora",
   "short_name": "Livora",
-  "start_url": "./",
+  "start_url": ".",
   "display": "standalone",
   "background_color": "#111827",
   "theme_color": "#2563eb",
-  "orientation": "portrait",
   "icons": [
     {
       "src": "image2.png",
@@ -19,3 +18,4 @@
     }
   ]
 }
+
